@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Optimize fbcp driver for raspberry pi handheld SPI display</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="Optimize fbcp driver for raspberry pi handheld SPI display" />
+<meta name="author" content="fiefdx" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="What I use" />
+<meta property="og:description" content="What I use" />
+<link rel="canonical" href="http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display.html" />
+<meta property="og:url" content="http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display.html" />
+<meta property="og:site_name" content="JustForFun" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-12-23T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Optimize fbcp driver for raspberry pi handheld SPI display" />
+<script type="application/ld+json">
+{"description":"What I use","@type":"BlogPosting","datePublished":"2023-12-23T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display.html"},"url":"http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display.html","author":{"@type":"Person","name":"fiefdx"},"headline":"Optimize fbcp driver for raspberry pi handheld SPI display","dateModified":"2023-12-23T00:00:00+08:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://blog.doiturself.net/feed.xml" title="JustForFun" /><link rel="shortcut icon" type="image/x-icon" href="/logo.png" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css"  />
+</head><!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BFDB41P7EM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BFDB41P7EM');
+  </script>
+  <body a="auto">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"><<<</a><article>
+  <p class="post-meta">
+    <time datetime="2023-12-23 00:00:00 +0800">2023-12-23</time>
+  </p>
+  
+  <h1>Optimize fbcp driver for raspberry pi handheld SPI display</h1>
+
+  <h2 id="what-i-use">What I use</h2>
+
+<p>I use a waveshare 2 inch spi display for my raspberry pi 3A+ text mode handheld computer, with 32bit raspberry pi os</p>
+
+<p><img src="/assets/images/2023-12-23/2inch-display.jpg" alt="waveshare 2 inch display" style="zoom: 33%;" /></p>
+
+<p>as waveshare official <a href="https://www.waveshare.com/wiki/2inch_LCD_Module?Amazon">document</a> says I wired it to raspberry pi as this</p>
+
+<p><img src="/assets/images/2023-12-23/display-pi.jpg" alt="display wire to raspberry pi" style="zoom:80%;" /></p>
+
+<p>I use FBCP driver with recommended install method</p>
+
+<p><img src="/assets/images/2023-12-23/fbcp-driver-port.png" alt="fbcp port" /></p>
+
+<p><img src="/assets/images/2023-12-23/fbcp-driver-install.png" alt="fbcp install" /></p>
+
+<h2 id="problems">Problems</h2>
+
+<ol>
+  <li>default TX &amp; RX channels not working</li>
+  <li>the spi display will suspend / freeze in an interval of sometime</li>
+  <li>the object has blur, when the object in display is moving</li>
+</ol>
+
+<h2 id="solutions">Solutions</h2>
+
+<h3 id="solve-tx--rx-channels-issue">solve TX &amp; RX channels issue</h3>
+
+<p>2 inch display install script file: <strong>Waveshare_fbcp/shell/waveshare-2inch</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">j</span><span class="o">=</span><span class="si">$(</span><span class="nb">uname</span> <span class="nt">-n</span><span class="si">)</span>
+<span class="nv">b</span><span class="o">=</span><span class="si">$(</span>getconf LONG_BIT<span class="si">)</span>
+<span class="nb">echo</span> <span class="s2">"The operating system :</span><span class="nv">$j</span><span class="s2"> </span><span class="nv">$b</span><span class="s2"> bit"</span>
+<span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$j</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"raspberrypi"</span><span class="p">;</span><span class="k">then
+
+    if</span> <span class="o">[</span> <span class="nt">-d</span> <span class="s2">"/home/pi/Waveshare_fbcp/build"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">sudo rm</span> <span class="nt">-rf</span> /home/pi/Waveshare_fbcp/build
+    <span class="k">fi
+    </span><span class="nb">mkdir</span> /home/pi/Waveshare_fbcp/build
+    <span class="nb">sudo </span>apt update
+    <span class="nb">sudo </span>apt <span class="nb">install </span>cmake <span class="nt">-y</span>
+    <span class="nb">sudo </span>apt <span class="nb">install </span>unzip <span class="nt">-y</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$b</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"32"</span><span class="p">;</span><span class="k">then
+        </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/boot/32/waveshare-2inch.txt /boot/config.txt
+    <span class="k">else
+        </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/boot/64/waveshare-2inch.txt /boot/config.txt
+    <span class="k">fi
+    </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/etc/rc.local /etc/rc.local
+
+    <span class="nb">cd</span> /home/pi/Waveshare_fbcp/build
+    <span class="nb">sudo </span>cmake <span class="nt">-DSPI_BUS_CLOCK_DIVISOR</span><span class="o">=</span>20 <span class="nt">-DWAVESHARE_2INCH_LCD</span><span class="o">=</span>ON <span class="nt">-DBACKLIGHT_CONTROL</span><span class="o">=</span>ON <span class="nt">-DSTATISTICS</span><span class="o">=</span>0 ..
+    <span class="nb">sudo </span>make <span class="nt">-j</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nt">-x</span> <span class="s2">"/usr/local/bin/fbcp"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">sudo rm</span> <span class="nt">-rf</span> /usr/local/bin/fbcp
+    <span class="k">fi
+    </span><span class="nb">sudo cp</span> ./fbcp /usr/local/bin/fbcp
+
+    <span class="nb">echo</span> <span class="s2">"The system is configured."</span>
+    <span class="nb">echo</span> <span class="s2">"The system will restart."</span>
+    <span class="nb">sudo </span>reboot
+<span class="k">else
+</span><span class="nb">echo</span> <span class="s2">"The shell only works with RaspberryPi"</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<p>I change the sudo cmake line as below:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>cmake <span class="nt">-DWAVESHARE_2INCH_LCD</span><span class="o">=</span>ON <span class="nt">-DBACKLIGHT_CONTROL</span><span class="o">=</span>ON <span class="nt">-DSTATISTICS</span><span class="o">=</span>0 <span class="nt">-DDMA_TX_CHANNEL</span><span class="o">=</span>10 <span class="nt">-DDMA_RX_CHANNEL</span><span class="o">=</span>5 ..
+</code></pre></div></div>
+
+<p>I add -DDMA_TX_CHANNEL=10 -DDMA_RX_CHANNEL=5, this will specify TX use channel 10, RX use channel 5.</p>
+
+<h3 id="solve-display-suspend--freeze">solve display suspend / freeze</h3>
+
+<p>In the driver code file: <strong>Waveshare_fbcp/src/config/config.h</strong></p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// If less than this much % of the screen changes per frame, the screen is considered to be inactive, and</span>
+<span class="c1">// the display backlight can automatically turn off, if TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY is </span>
+<span class="c1">// defined.</span>
+<span class="cp">#define DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE (5 / 100.0)
+</span></code></pre></div></div>
+
+<p>this means, if the screen change pixels less than 5%, then the display back light will turn off, and, that will be often happened in a linux terminal situation.</p>
+
+<p>so, I change it as below:</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// If less than this much % of the screen changes per frame, the screen is considered to be inactive, and</span>
+<span class="c1">// the display backlight can automatically turn off, if TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY is </span>
+<span class="c1">// defined.</span>
+<span class="cp">#define DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE (0.001 / 100.0)
+</span></code></pre></div></div>
+
+<p>this will keep the display always active.</p>
+
+<h3 id="solve-moving-object-blur">solve moving object blur</h3>
+
+<p>2 inch display install script file: <strong>Waveshare_fbcp/shell/waveshare-2inch</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">j</span><span class="o">=</span><span class="si">$(</span><span class="nb">uname</span> <span class="nt">-n</span><span class="si">)</span>
+<span class="nv">b</span><span class="o">=</span><span class="si">$(</span>getconf LONG_BIT<span class="si">)</span>
+<span class="nb">echo</span> <span class="s2">"The operating system :</span><span class="nv">$j</span><span class="s2"> </span><span class="nv">$b</span><span class="s2"> bit"</span>
+<span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$j</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"raspberrypi"</span><span class="p">;</span><span class="k">then
+
+    if</span> <span class="o">[</span> <span class="nt">-d</span> <span class="s2">"/home/pi/Waveshare_fbcp/build"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">sudo rm</span> <span class="nt">-rf</span> /home/pi/Waveshare_fbcp/build
+    <span class="k">fi
+    </span><span class="nb">mkdir</span> /home/pi/Waveshare_fbcp/build
+    <span class="nb">sudo </span>apt update
+    <span class="nb">sudo </span>apt <span class="nb">install </span>cmake <span class="nt">-y</span>
+    <span class="nb">sudo </span>apt <span class="nb">install </span>unzip <span class="nt">-y</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$b</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"32"</span><span class="p">;</span><span class="k">then
+        </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/boot/32/waveshare-2inch.txt /boot/config.txt
+    <span class="k">else
+        </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/boot/64/waveshare-2inch.txt /boot/config.txt
+    <span class="k">fi
+    </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/etc/rc.local /etc/rc.local
+
+    <span class="nb">cd</span> /home/pi/Waveshare_fbcp/build
+    <span class="nb">sudo </span>cmake <span class="nt">-DSPI_BUS_CLOCK_DIVISOR</span><span class="o">=</span>20 <span class="nt">-DWAVESHARE_2INCH_LCD</span><span class="o">=</span>ON <span class="nt">-DBACKLIGHT_CONTROL</span><span class="o">=</span>ON <span class="nt">-DSTATISTICS</span><span class="o">=</span>0 ..
+    <span class="nb">sudo </span>make <span class="nt">-j</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nt">-x</span> <span class="s2">"/usr/local/bin/fbcp"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">sudo rm</span> <span class="nt">-rf</span> /usr/local/bin/fbcp
+    <span class="k">fi
+    </span><span class="nb">sudo cp</span> ./fbcp /usr/local/bin/fbcp
+
+    <span class="nb">echo</span> <span class="s2">"The system is configured."</span>
+    <span class="nb">echo</span> <span class="s2">"The system will restart."</span>
+    <span class="nb">sudo </span>reboot
+<span class="k">else
+</span><span class="nb">echo</span> <span class="s2">"The shell only works with RaspberryPi"</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<p>I change the sudo cmake line as below, it include the TX &amp; RX changes:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>cmake <span class="nt">-DSPI_BUS_CLOCK_DIVISOR</span><span class="o">=</span>6 <span class="nt">-DWAVESHARE_2INCH_LCD</span><span class="o">=</span>ON <span class="nt">-DBACKLIGHT_CONTROL</span><span class="o">=</span>ON <span class="nt">-DSTATISTICS</span><span class="o">=</span>0 <span class="nt">-DDMA_TX_CHANNEL</span><span class="o">=</span>10 <span class="nt">-DDMA_RX_CHANNEL</span><span class="o">=</span>5 <span class="nt">-DARMV8A</span><span class="o">=</span>ON ..
+</code></pre></div></div>
+
+<p>I add -DSPI_BUS_CLOCK_DIVISOR=6 and -DARMV8A=ON, this will increase the bandwidth, make the frame more smooth.</p>
+
+<p>according to the fbcp github <a href="https://github.com/juj/fbcp-ili9341">README</a>:</p>
+
+<p><img src="/assets/images/2023-12-23/DSPI_BUS_CLOCK_DIVISOR.png" alt="fbcp readme" /></p>
+
+<p>the final <strong>Waveshare_fbcp/shell/waveshare-2inch</strong> will look like this, include all I changed:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">j</span><span class="o">=</span><span class="si">$(</span><span class="nb">uname</span> <span class="nt">-n</span><span class="si">)</span>
+<span class="nv">b</span><span class="o">=</span><span class="si">$(</span>getconf LONG_BIT<span class="si">)</span>
+<span class="nb">echo</span> <span class="s2">"The operating system :</span><span class="nv">$j</span><span class="s2"> </span><span class="nv">$b</span><span class="s2"> bit"</span>
+<span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$j</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"raspberrypi"</span><span class="p">;</span><span class="k">then
+
+    if</span> <span class="o">[</span> <span class="nt">-d</span> <span class="s2">"/home/pi/Waveshare_fbcp/build"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">sudo rm</span> <span class="nt">-rf</span> /home/pi/Waveshare_fbcp/build
+    <span class="k">fi
+    </span><span class="nb">mkdir</span> /home/pi/Waveshare_fbcp/build
+    <span class="nb">sudo </span>apt update
+    <span class="nb">sudo </span>apt <span class="nb">install </span>cmake <span class="nt">-y</span>
+    <span class="nb">sudo </span>apt <span class="nb">install </span>unzip <span class="nt">-y</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$b</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"32"</span><span class="p">;</span><span class="k">then
+        </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/boot/32/waveshare-2inch.txt /boot/config.txt
+    <span class="k">else
+        </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/boot/64/waveshare-2inch.txt /boot/config.txt
+    <span class="k">fi
+    </span><span class="nb">sudo cp</span> /home/pi/Waveshare_fbcp/shell/etc/rc.local /etc/rc.local
+
+    <span class="nb">cd</span> /home/pi/Waveshare_fbcp/build
+    <span class="nb">sudo </span>cmake <span class="nt">-DSPI_BUS_CLOCK_DIVISOR</span><span class="o">=</span>6 <span class="nt">-DWAVESHARE_2INCH_LCD</span><span class="o">=</span>ON <span class="nt">-DBACKLIGHT_CONTROL</span><span class="o">=</span>ON <span class="nt">-DSTATISTICS</span><span class="o">=</span>0 <span class="nt">-DDMA_TX_CHANNEL</span><span class="o">=</span>10 <span class="nt">-DDMA_RX_CHANNEL</span><span class="o">=</span>5 <span class="nt">-DARMV8A</span><span class="o">=</span>ON ..
+    <span class="nb">sudo </span>make <span class="nt">-j</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nt">-x</span> <span class="s2">"/usr/local/bin/fbcp"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">sudo rm</span> <span class="nt">-rf</span> /usr/local/bin/fbcp
+    <span class="k">fi
+    </span><span class="nb">sudo cp</span> ./fbcp /usr/local/bin/fbcp
+
+    <span class="nb">echo</span> <span class="s2">"The system is configured."</span>
+    <span class="nb">echo</span> <span class="s2">"The system will restart."</span>
+    <span class="nb">sudo </span>reboot
+<span class="k">else
+</span><span class="nb">echo</span> <span class="s2">"The shell only works with RaspberryPi"</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

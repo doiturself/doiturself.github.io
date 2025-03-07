@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://blog.doiturself.net/feed.xml" rel="self" type="application/atom+xml" /><link href="http://blog.doiturself.net/" rel="alternate" type="text/html" /><updated>2025-03-06T01:17:22+08:00</updated><id>http://blog.doiturself.net/feed.xml</id><title type="html">JustForFun</title><subtitle>I like to build tools &amp; toys for myself, this blog is for recording myself building things, and I build it for fun.
+</subtitle><author><name>fiefdx</name></author><entry><title type="html">How to build a keyboard with raspberry pi pico</title><link href="http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico.html" rel="alternate" type="text/html" title="How to build a keyboard with raspberry pi pico" /><published>2024-07-29T00:00:00+08:00</published><updated>2024-07-29T00:00:00+08:00</updated><id>http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico</id><content type="html" xml:base="http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico.html">&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;raspberry pi pico board or compatible board&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2024-07-29/raspberry-pi-pico.png&quot; alt=&quot;raspberry-pi-pico&quot; style=&quot;zoom:55%;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-25/yd-rp2040-pico.jpeg&quot; alt=&quot;yd rp2040&quot; style=&quot;zoom:50%;&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;breadboard 7cm * 9cm&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-25/breadboard.jpg&quot; alt=&quot;breadboard&quot; style=&quot;zoom:50%;&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;many Omron B3F-1060(6mm * 6mm * 7mm) switchs, depend on how many keys you want&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-25/B3F-1060.jpeg&quot; alt=&quot;B3F-1060&quot; style=&quot;zoom:25%;&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;some thin cables&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-25/thin_cables.jpg&quot; alt=&quot;thin cables&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;pc for writing keyboard firmware to raspberry pi pico&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;solder tools&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;hot glue gun and glue sticks&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;some other tools&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;design-your-keyboard&quot;&gt;Design your Keyboard&lt;/h2&gt;
+
+&lt;p&gt;I build 60 to 80 keys keyboard for my DIY handheld computers. In this post, I will describe how to build a 60 keys small keyboard based on Raspberry Pi Pico and CircuitPython.&lt;/p&gt;
+
+&lt;h4 id=&quot;place-all-your-switches&quot;&gt;Place all your switches&lt;/h4&gt;
+
+&lt;p&gt;place 10 switches a line like below, the green lines with the same number is already connected inside the key switch, the red line connected to every key switch’s one left pin, so, in this schematic, if connect green 0 to low voltage(ground) and press the 0 key switch, the red line 0 will output low voltage, and, release the key, the red line 0 will remain what voltage it’s been set by MCU.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-07-29/place-one-line-keys.png&quot; alt=&quot;place-one-line-keys&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;full-keyboard-and-raspberry-pi-pico-schematic&quot;&gt;Full keyboard and Raspberry Pi Pico schematic&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-07-29/keyboard-schematic.png&quot; alt=&quot;keyboard-schematic&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The green and red lines is only for schematic, you should solder the keys on breadboard’s back. After you solder all the keys and cables to the Raspberry Pi Pico GPIO pins, the rest is firmware(software).&lt;/p&gt;
+
+&lt;h4 id=&quot;keyboard-firmware&quot;&gt;Keyboard Firmware&lt;/h4&gt;
+
+&lt;p&gt;I use CircuitPython to develop my DIY keyboard, the 60 keys keyboard firmware based on my self developed pico scheduler is here on my GitHub: &lt;a href=&quot;https://github.com/fiefdx/keyboard_60keys_pico_scheduler&quot;&gt;keyboard_60keys_pico_scheduler&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;First, you need install CircuitPython firmware on your Raspberry Pi Pico, get it from here: &lt;a href=&quot;https://circuitpython.org/board/raspberry_pi_pico/&quot;&gt;CircuitPython Raspberry Pi Pico&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Then, copy my &lt;a href=&quot;https://github.com/fiefdx/keyboard_60keys_pico_scheduler&quot;&gt;keyboard_60keys_pico_scheduler&lt;/a&gt; code on your Raspberry Pi Pico, run the code.py. Congratulations, you get a little usb keyboard, which you can use it in your handheld or portable DIY projects.&lt;/p&gt;
+
+&lt;p&gt;If you have any questions, leave a issue on my GitHub project, I will response later.&lt;/p&gt;</content><author><name>fiefdx</name></author><category term="hardware" /><summary type="html">Prerequisites</summary></entry><entry><title type="html">Optimize fbcp driver for raspberry pi handheld SPI display</title><link href="http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display.html" rel="alternate" type="text/html" title="Optimize fbcp driver for raspberry pi handheld SPI display" /><published>2023-12-23T00:00:00+08:00</published><updated>2023-12-23T00:00:00+08:00</updated><id>http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display</id><content type="html" xml:base="http://blog.doiturself.net/software/2023/12/23/optimize-fbcp-driver-for-raspberry-pi-handheld-spi-display.html">&lt;h2 id=&quot;what-i-use&quot;&gt;What I use&lt;/h2&gt;
+
+&lt;p&gt;I use a waveshare 2 inch spi display for my raspberry pi 3A+ text mode handheld computer, with 32bit raspberry pi os&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-23/2inch-display.jpg&quot; alt=&quot;waveshare 2 inch display&quot; style=&quot;zoom: 33%;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;as waveshare official &lt;a href=&quot;https://www.waveshare.com/wiki/2inch_LCD_Module?Amazon&quot;&gt;document&lt;/a&gt; says I wired it to raspberry pi as this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-23/display-pi.jpg&quot; alt=&quot;display wire to raspberry pi&quot; style=&quot;zoom:80%;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I use FBCP driver with recommended install method&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-23/fbcp-driver-port.png&quot; alt=&quot;fbcp port&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-23/fbcp-driver-install.png&quot; alt=&quot;fbcp install&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;problems&quot;&gt;Problems&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;default TX &amp;amp; RX channels not working&lt;/li&gt;
+  &lt;li&gt;the spi display will suspend / freeze in an interval of sometime&lt;/li&gt;
+  &lt;li&gt;the object has blur, when the object in display is moving&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;solutions&quot;&gt;Solutions&lt;/h2&gt;
+
+&lt;h3 id=&quot;solve-tx--rx-channels-issue&quot;&gt;solve TX &amp;amp; RX channels issue&lt;/h3&gt;
+
+&lt;p&gt;2 inch display install script file: &lt;strong&gt;Waveshare_fbcp/shell/waveshare-2inch&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;uname&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;getconf LONG_BIT&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The operating system :&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$j&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$b&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; bit&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$j&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;raspberrypi&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;then
+
+    if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/home/pi/Waveshare_fbcp/build&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt update
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;unzip &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$b&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;then
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/boot/32/waveshare-2inch.txt /boot/config.txt
+    &lt;span class=&quot;k&quot;&gt;else
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/boot/64/waveshare-2inch.txt /boot/config.txt
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/etc/rc.local /etc/rc.local
+
+    &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-DSPI_BUS_CLOCK_DIVISOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;20 &lt;span class=&quot;nt&quot;&gt;-DWAVESHARE_2INCH_LCD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DBACKLIGHT_CONTROL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DSTATISTICS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 ..
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/usr/local/bin/fbcp&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /usr/local/bin/fbcp
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; ./fbcp /usr/local/bin/fbcp
+
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The system is configured.&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The system will restart.&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;reboot
+&lt;span class=&quot;k&quot;&gt;else
+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The shell only works with RaspberryPi&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I change the sudo cmake line as below:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-DWAVESHARE_2INCH_LCD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DBACKLIGHT_CONTROL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DSTATISTICS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 &lt;span class=&quot;nt&quot;&gt;-DDMA_TX_CHANNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;10 &lt;span class=&quot;nt&quot;&gt;-DDMA_RX_CHANNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;5 ..
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I add -DDMA_TX_CHANNEL=10 -DDMA_RX_CHANNEL=5, this will specify TX use channel 10, RX use channel 5.&lt;/p&gt;
+
+&lt;h3 id=&quot;solve-display-suspend--freeze&quot;&gt;solve display suspend / freeze&lt;/h3&gt;
+
+&lt;p&gt;In the driver code file: &lt;strong&gt;Waveshare_fbcp/src/config/config.h&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// If less than this much % of the screen changes per frame, the screen is considered to be inactive, and&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// the display backlight can automatically turn off, if TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY is &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// defined.&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE (5 / 100.0)
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;this means, if the screen change pixels less than 5%, then the display back light will turn off, and, that will be often happened in a linux terminal situation.&lt;/p&gt;
+
+&lt;p&gt;so, I change it as below:&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// If less than this much % of the screen changes per frame, the screen is considered to be inactive, and&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// the display backlight can automatically turn off, if TURN_DISPLAY_OFF_AFTER_USECS_OF_INACTIVITY is &lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// defined.&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;#define DISPLAY_CONSIDERED_INACTIVE_PERCENTAGE (0.001 / 100.0)
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;this will keep the display always active.&lt;/p&gt;
+
+&lt;h3 id=&quot;solve-moving-object-blur&quot;&gt;solve moving object blur&lt;/h3&gt;
+
+&lt;p&gt;2 inch display install script file: &lt;strong&gt;Waveshare_fbcp/shell/waveshare-2inch&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;uname&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;getconf LONG_BIT&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The operating system :&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$j&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$b&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; bit&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$j&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;raspberrypi&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;then
+
+    if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/home/pi/Waveshare_fbcp/build&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt update
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;unzip &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$b&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;then
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/boot/32/waveshare-2inch.txt /boot/config.txt
+    &lt;span class=&quot;k&quot;&gt;else
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/boot/64/waveshare-2inch.txt /boot/config.txt
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/etc/rc.local /etc/rc.local
+
+    &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-DSPI_BUS_CLOCK_DIVISOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;20 &lt;span class=&quot;nt&quot;&gt;-DWAVESHARE_2INCH_LCD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DBACKLIGHT_CONTROL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DSTATISTICS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 ..
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/usr/local/bin/fbcp&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /usr/local/bin/fbcp
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; ./fbcp /usr/local/bin/fbcp
+
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The system is configured.&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The system will restart.&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;reboot
+&lt;span class=&quot;k&quot;&gt;else
+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The shell only works with RaspberryPi&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I change the sudo cmake line as below, it include the TX &amp;amp; RX changes:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-DSPI_BUS_CLOCK_DIVISOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;6 &lt;span class=&quot;nt&quot;&gt;-DWAVESHARE_2INCH_LCD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DBACKLIGHT_CONTROL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DSTATISTICS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 &lt;span class=&quot;nt&quot;&gt;-DDMA_TX_CHANNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;10 &lt;span class=&quot;nt&quot;&gt;-DDMA_RX_CHANNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;5 &lt;span class=&quot;nt&quot;&gt;-DARMV8A&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON ..
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I add -DSPI_BUS_CLOCK_DIVISOR=6 and -DARMV8A=ON, this will increase the bandwidth, make the frame more smooth.&lt;/p&gt;
+
+&lt;p&gt;according to the fbcp github &lt;a href=&quot;https://github.com/juj/fbcp-ili9341&quot;&gt;README&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-23/DSPI_BUS_CLOCK_DIVISOR.png&quot; alt=&quot;fbcp readme&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;the final &lt;strong&gt;Waveshare_fbcp/shell/waveshare-2inch&lt;/strong&gt; will look like this, include all I changed:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;uname&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;getconf LONG_BIT&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The operating system :&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$j&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$b&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; bit&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$j&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;raspberrypi&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;then
+
+    if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/home/pi/Waveshare_fbcp/build&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt update
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;unzip &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$b&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;32&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;then
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/boot/32/waveshare-2inch.txt /boot/config.txt
+    &lt;span class=&quot;k&quot;&gt;else
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/boot/64/waveshare-2inch.txt /boot/config.txt
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; /home/pi/Waveshare_fbcp/shell/etc/rc.local /etc/rc.local
+
+    &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/pi/Waveshare_fbcp/build
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cmake &lt;span class=&quot;nt&quot;&gt;-DSPI_BUS_CLOCK_DIVISOR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;6 &lt;span class=&quot;nt&quot;&gt;-DWAVESHARE_2INCH_LCD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DBACKLIGHT_CONTROL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON &lt;span class=&quot;nt&quot;&gt;-DSTATISTICS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 &lt;span class=&quot;nt&quot;&gt;-DDMA_TX_CHANNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;10 &lt;span class=&quot;nt&quot;&gt;-DDMA_RX_CHANNEL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;5 &lt;span class=&quot;nt&quot;&gt;-DARMV8A&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ON ..
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/usr/local/bin/fbcp&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo rm&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; /usr/local/bin/fbcp
+    &lt;span class=&quot;k&quot;&gt;fi
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo cp&lt;/span&gt; ./fbcp /usr/local/bin/fbcp
+
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The system is configured.&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The system will restart.&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;reboot
+&lt;span class=&quot;k&quot;&gt;else
+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The shell only works with RaspberryPi&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>fiefdx</name></author><category term="software" /><summary type="html">What I use</summary></entry><entry><title type="html">raspberry pi 3A+ use a amplifier to add stereo speakers</title><link href="http://blog.doiturself.net/hardware/2023/12/20/raspberry-pi-how-to-use-amplifier.html" rel="alternate" type="text/html" title="raspberry pi 3A+ use a amplifier to add stereo speakers" /><published>2023-12-20T00:00:00+08:00</published><updated>2023-12-20T00:00:00+08:00</updated><id>http://blog.doiturself.net/hardware/2023/12/20/raspberry-pi-how-to-use-amplifier</id><content type="html" xml:base="http://blog.doiturself.net/hardware/2023/12/20/raspberry-pi-how-to-use-amplifier.html">&lt;h2 id=&quot;what-i-want&quot;&gt;What I want&lt;/h2&gt;
+
+&lt;p&gt;The raspberry pi 3A+ is a powerful and small single board computer, I like to use it in many projects, but, its onboard audio output is not powerful enough, only can power up headphones, so, I bought an amplifier to make an improvement.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-amplifier-i-used&quot;&gt;The amplifier I used&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/amplifier.JPG&quot; alt=&quot;amplifier&quot; style=&quot;zoom:20%;&quot; /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;the amplifier board based on PMA8403 chip&lt;/p&gt;
+
+&lt;h2 id=&quot;wire-schematic&quot;&gt;Wire schematic&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/wire_schematic.jpg&quot; alt=&quot;wire schematic&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;you can use the mute switch to mute the speakers, when you use headphones, or, if you want to auto switch between speakers and headphones, you can solder a 5-pin jack to connect speakers and not use pi’s jack for headphones.&lt;/p&gt;</content><author><name>fiefdx</name></author><category term="hardware" /><summary type="html">What I want</summary></entry><entry><title type="html">Build a circuitpython &amp;amp; micropython task scheduler for raspberry pi pico</title><link href="http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler.html" rel="alternate" type="text/html" title="Build a circuitpython &amp;amp; micropython task scheduler for raspberry pi pico" /><published>2023-12-20T00:00:00+08:00</published><updated>2023-12-20T00:00:00+08:00</updated><id>http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler</id><content type="html" xml:base="http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler.html">&lt;h2 id=&quot;what-i-want&quot;&gt;What I want&lt;/h2&gt;
+
+&lt;p&gt;With circuitpython or micropython on raspberry pi pico, there is only one cpu core will be used in common situation, eventhough, micropython do support second cpu core. So, I want a task scheduler on it, it will just like coroutine, every task will be like a forever loop, there will be yield in the task loop. Every time a task yield, the procedure will be return back to scheduler, the scheduler will schedule the next task to run. This kind scheduler will be better than a forever main loop, the cpu core will be used to run another task when the current running task suspended, and, it will be more easy to code with.&lt;/p&gt;
+
+&lt;h2 id=&quot;design&quot;&gt;Design&lt;/h2&gt;
+
+&lt;p&gt;&lt;b&gt;Message&lt;/b&gt;: A message to send to another task&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Condition&lt;/b&gt;: A signal to yield to suspend current task and back to scheduler with/without sending messages to another task&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Task&lt;/b&gt;: A function with forever loop and yield sentence, it do all the workload&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Scheduler&lt;/b&gt;: A class with forever loop procedure, do all the scheduling work, operate all the communications between tasks, and, statistic memory and cpu load&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/procedure.bmp&quot; alt=&quot;procedure&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;project-structure&quot;&gt;Project Structure&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;tree
+&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+├── code.py &lt;span class=&quot;c&quot;&gt;# example code.py&lt;/span&gt;
+├── common.py &lt;span class=&quot;c&quot;&gt;# common methods&lt;/span&gt;
+├── doc &lt;span class=&quot;c&quot;&gt;# document images&lt;/span&gt;
+├── lib &lt;span class=&quot;c&quot;&gt;# lib directory, currently, no dependency needed&lt;/span&gt;
+├── main.py &lt;span class=&quot;c&quot;&gt;# example main.py&lt;/span&gt;
+└── scheduler.py &lt;span class=&quot;c&quot;&gt;# scheduler classes &amp;amp; methods&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;how-to-use-it&quot;&gt;How to use it&lt;/h2&gt;
+
+&lt;h4 id=&quot;1-clone-the-code&quot;&gt;1. clone the code&lt;/h4&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git clone git@github.com:fiefdx/pico_scheduler.git
+
+&lt;span class=&quot;c&quot;&gt;# or fork then clone from yourself github&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;2-copy-the-code-into-raspberry-pi-pico&quot;&gt;2. copy the code into raspberry pi pico&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/copy2pico.png&quot; alt=&quot;copy into pico&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;3-open-thonny-connect-to-raspberry-pi-pico&quot;&gt;3. open Thonny connect to raspberry pi pico&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/openthonny.png&quot; alt=&quot;open thonny&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;4-explain-the-codepy&quot;&gt;4. explain the code.py&lt;/h4&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;gc&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;scheduler&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Scheluder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# import basic components
+&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;common&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ticks_ms&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ticks_add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ticks_diff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sleep_ms&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# import basic methods
+&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# define monitor task function
+# task &amp;amp; name parameters are required by task function signature
+# other parameters can be customized
+# monitor task send cpu &amp;amp; memory load message to display task every 2 seconds
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;monitor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scheduler&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;gc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;collect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;monitor_msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;CPU:%3d%%  RAM:%3d%%&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;idle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;scheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mem_free&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;264&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1024&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))))&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;yield&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;send_msgs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;msg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;monitor_msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;receiver&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)])&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# sleep 2000 ms, and, send message to display task
+&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# define display task function
+# display task wait for message to print
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;yield&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wait_msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# suspend and wait for message to recover
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;msg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+
+&lt;span class=&quot;c1&quot;&gt;# define counter task function
+# counter task send message to display task and sleep interval ms every 100 times
+# otherwise, it will sleep interval ms
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interval&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;yield&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;send_msgs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;msg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;counter: %06d&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;receiver&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)])&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# sleep interval ms, and, send message to display task
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;yield&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# sleep interval ms
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;__main__&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Scheluder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# initiate a scheduler instance
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add_task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;display&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# scheduler add display task
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;monitor_id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add_task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;monitor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;monitor&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;scheduler&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;display_id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}))&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# scheduler add monitor task
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;counter_id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add_task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;counter&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;interval&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;display_id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;display_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}))&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# scheduler add counter task
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# run scheduler
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;main: %s&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;5-performance&quot;&gt;5. performance&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/performance.png&quot; alt=&quot;performance&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Run the 10 ms interval counter task, with monitor and display tasks, it will take &lt;strong&gt;59% cpu&lt;/strong&gt; workload and &lt;strong&gt;30% ram&lt;/strong&gt; workload, at default cpu frequency &lt;strong&gt;133mhz&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-20/performance2.png&quot; alt=&quot;performance 200mhz&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Run the 10 ms interval counter task, with monitor and display tasks, it will take &lt;strong&gt;15% cpu&lt;/strong&gt; workload and &lt;strong&gt;30% ram&lt;/strong&gt; workload, at default cpu frequency &lt;strong&gt;200mhz&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;6-how-to-overclock-raspberry-pi-pico-with-python&quot;&gt;6. how to overclock raspberry pi pico with python&lt;/h4&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;machine&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;microcontroller&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;machine&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;microcontroller&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;no machine &amp;amp; microcontroller module support&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;machine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;machine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;freq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;200000000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# for micropython use machine to set frequency
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;freq: %s mhz&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;machine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;freq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;microcontroller&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;microcontroller&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cpu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;frequency&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200000000&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# for circuitpython use microcontroller to set frequency
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;freq: %s mhz&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;microcontroller&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cpu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;frequency&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>fiefdx</name></author><category term="software" /><summary type="html">What I want</summary></entry><entry><title type="html">First Post</title><link href="http://blog.doiturself.net/blog-test/2023/12/19/first-post.html" rel="alternate" type="text/html" title="First Post" /><published>2023-12-19T00:00:00+08:00</published><updated>2023-12-19T00:00:00+08:00</updated><id>http://blog.doiturself.net/blog-test/2023/12/19/first-post</id><content type="html" xml:base="http://blog.doiturself.net/blog-test/2023/12/19/first-post.html">&lt;p&gt;This post is the first post.&lt;/p&gt;</content><author><name>fiefdx</name></author><category term="blog-test" /><summary type="html">This post is the first post.</summary></entry><entry><title type="html">Test With Image</title><link href="http://blog.doiturself.net/blog-test/2023/12/19/test-with-image.html" rel="alternate" type="text/html" title="Test With Image" /><published>2023-12-19T00:00:00+08:00</published><updated>2023-12-19T00:00:00+08:00</updated><id>http://blog.doiturself.net/blog-test/2023/12/19/test-with-image</id><content type="html" xml:base="http://blog.doiturself.net/blog-test/2023/12/19/test-with-image.html">&lt;p&gt;This is a test post for text &amp;amp; image.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-19-test-with-image/cluster.png&quot; alt=&quot;litedfs cluster page&quot; /&gt;&lt;/p&gt;</content><author><name>fiefdx</name></author><category term="blog-test" /><summary type="html">This is a test post for text &amp;amp; image.</summary></entry></feed>

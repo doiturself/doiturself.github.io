@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>How to build a keyboard with raspberry pi pico</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="How to build a keyboard with raspberry pi pico" />
+<meta name="author" content="fiefdx" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Prerequisites" />
+<meta property="og:description" content="Prerequisites" />
+<link rel="canonical" href="http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico.html" />
+<meta property="og:url" content="http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico.html" />
+<meta property="og:site_name" content="JustForFun" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-07-29T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to build a keyboard with raspberry pi pico" />
+<script type="application/ld+json">
+{"description":"Prerequisites","@type":"BlogPosting","datePublished":"2024-07-29T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico.html"},"url":"http://blog.doiturself.net/hardware/2024/07/29/how-to-build-a-keyboard-with-raspberry-pi-pico.html","author":{"@type":"Person","name":"fiefdx"},"headline":"How to build a keyboard with raspberry pi pico","dateModified":"2024-07-29T00:00:00+08:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://blog.doiturself.net/feed.xml" title="JustForFun" /><link rel="shortcut icon" type="image/x-icon" href="/logo.png" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css"  />
+</head><!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BFDB41P7EM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BFDB41P7EM');
+  </script>
+  <body a="auto">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"><<<</a><article>
+  <p class="post-meta">
+    <time datetime="2024-07-29 00:00:00 +0800">2024-07-29</time>
+  </p>
+  
+  <h1>How to build a keyboard with raspberry pi pico</h1>
+
+  <h2 id="prerequisites">Prerequisites</h2>
+
+<ol>
+  <li>
+    <p>raspberry pi pico board or compatible board</p>
+
+    <p><img src="/assets/images/2024-07-29/raspberry-pi-pico.png" alt="raspberry-pi-pico" style="zoom:55%;" /></p>
+  </li>
+</ol>
+
+<p><img src="/assets/images/2023-12-25/yd-rp2040-pico.jpeg" alt="yd rp2040" style="zoom:50%;" /></p>
+
+<ol>
+  <li>breadboard 7cm * 9cm</li>
+</ol>
+
+<p><img src="/assets/images/2023-12-25/breadboard.jpg" alt="breadboard" style="zoom:50%;" /></p>
+
+<ol>
+  <li>many Omron B3F-1060(6mm * 6mm * 7mm) switchs, depend on how many keys you want</li>
+</ol>
+
+<p><img src="/assets/images/2023-12-25/B3F-1060.jpeg" alt="B3F-1060" style="zoom:25%;" /></p>
+
+<ol>
+  <li>some thin cables</li>
+</ol>
+
+<p><img src="/assets/images/2023-12-25/thin_cables.jpg" alt="thin cables" /></p>
+
+<ol>
+  <li>
+    <p>pc for writing keyboard firmware to raspberry pi pico</p>
+  </li>
+  <li>
+    <p>solder tools</p>
+  </li>
+  <li>
+    <p>hot glue gun and glue sticks</p>
+  </li>
+  <li>
+    <p>some other tools</p>
+  </li>
+</ol>
+
+<h2 id="design-your-keyboard">Design your Keyboard</h2>
+
+<p>I build 60 to 80 keys keyboard for my DIY handheld computers. In this post, I will describe how to build a 60 keys small keyboard based on Raspberry Pi Pico and CircuitPython.</p>
+
+<h4 id="place-all-your-switches">Place all your switches</h4>
+
+<p>place 10 switches a line like below, the green lines with the same number is already connected inside the key switch, the red line connected to every key switch’s one left pin, so, in this schematic, if connect green 0 to low voltage(ground) and press the 0 key switch, the red line 0 will output low voltage, and, release the key, the red line 0 will remain what voltage it’s been set by MCU.</p>
+
+<p><img src="/assets/images/2024-07-29/place-one-line-keys.png" alt="place-one-line-keys" /></p>
+
+<h4 id="full-keyboard-and-raspberry-pi-pico-schematic">Full keyboard and Raspberry Pi Pico schematic</h4>
+
+<p><img src="/assets/images/2024-07-29/keyboard-schematic.png" alt="keyboard-schematic" /></p>
+
+<p>The green and red lines is only for schematic, you should solder the keys on breadboard’s back. After you solder all the keys and cables to the Raspberry Pi Pico GPIO pins, the rest is firmware(software).</p>
+
+<h4 id="keyboard-firmware">Keyboard Firmware</h4>
+
+<p>I use CircuitPython to develop my DIY keyboard, the 60 keys keyboard firmware based on my self developed pico scheduler is here on my GitHub: <a href="https://github.com/fiefdx/keyboard_60keys_pico_scheduler">keyboard_60keys_pico_scheduler</a></p>
+
+<p>First, you need install CircuitPython firmware on your Raspberry Pi Pico, get it from here: <a href="https://circuitpython.org/board/raspberry_pi_pico/">CircuitPython Raspberry Pi Pico</a></p>
+
+<p>Then, copy my <a href="https://github.com/fiefdx/keyboard_60keys_pico_scheduler">keyboard_60keys_pico_scheduler</a> code on your Raspberry Pi Pico, run the code.py. Congratulations, you get a little usb keyboard, which you can use it in your handheld or portable DIY projects.</p>
+
+<p>If you have any questions, leave a issue on my GitHub project, I will response later.</p>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Build a circuitpython & micropython task scheduler for raspberry pi pico</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="Build a circuitpython &amp; micropython task scheduler for raspberry pi pico" />
+<meta name="author" content="fiefdx" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="What I want" />
+<meta property="og:description" content="What I want" />
+<link rel="canonical" href="http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler.html" />
+<meta property="og:url" content="http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler.html" />
+<meta property="og:site_name" content="JustForFun" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-12-20T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build a circuitpython &amp; micropython task scheduler for raspberry pi pico" />
+<script type="application/ld+json">
+{"description":"What I want","@type":"BlogPosting","datePublished":"2023-12-20T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler.html"},"url":"http://blog.doiturself.net/software/2023/12/20/raspberry-pi-pico-scheduler.html","author":{"@type":"Person","name":"fiefdx"},"headline":"Build a circuitpython &amp; micropython task scheduler for raspberry pi pico","dateModified":"2023-12-20T00:00:00+08:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://blog.doiturself.net/feed.xml" title="JustForFun" /><link rel="shortcut icon" type="image/x-icon" href="/logo.png" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/syntax.css"  />
+</head><!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BFDB41P7EM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BFDB41P7EM');
+  </script>
+  <body a="auto">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/"><<<</a><article>
+  <p class="post-meta">
+    <time datetime="2023-12-20 00:00:00 +0800">2023-12-20</time>
+  </p>
+  
+  <h1>Build a circuitpython & micropython task scheduler for raspberry pi pico</h1>
+
+  <h2 id="what-i-want">What I want</h2>
+
+<p>With circuitpython or micropython on raspberry pi pico, there is only one cpu core will be used in common situation, eventhough, micropython do support second cpu core. So, I want a task scheduler on it, it will just like coroutine, every task will be like a forever loop, there will be yield in the task loop. Every time a task yield, the procedure will be return back to scheduler, the scheduler will schedule the next task to run. This kind scheduler will be better than a forever main loop, the cpu core will be used to run another task when the current running task suspended, and, it will be more easy to code with.</p>
+
+<h2 id="design">Design</h2>
+
+<p><b>Message</b>: A message to send to another task</p>
+
+<p><b>Condition</b>: A signal to yield to suspend current task and back to scheduler with/without sending messages to another task</p>
+
+<p><b>Task</b>: A function with forever loop and yield sentence, it do all the workload</p>
+
+<p><b>Scheduler</b>: A class with forever loop procedure, do all the scheduling work, operate all the communications between tasks, and, statistic memory and cpu load</p>
+
+<p><img src="/assets/images/2023-12-20/procedure.bmp" alt="procedure" /></p>
+
+<h2 id="project-structure">Project Structure</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>tree
+<span class="nb">.</span>
+├── code.py <span class="c"># example code.py</span>
+├── common.py <span class="c"># common methods</span>
+├── doc <span class="c"># document images</span>
+├── lib <span class="c"># lib directory, currently, no dependency needed</span>
+├── main.py <span class="c"># example main.py</span>
+└── scheduler.py <span class="c"># scheduler classes &amp; methods</span>
+</code></pre></div></div>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<h4 id="1-clone-the-code">1. clone the code</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone git@github.com:fiefdx/pico_scheduler.git
+
+<span class="c"># or fork then clone from yourself github</span>
+</code></pre></div></div>
+
+<h4 id="2-copy-the-code-into-raspberry-pi-pico">2. copy the code into raspberry pi pico</h4>
+
+<p><img src="/assets/images/2023-12-20/copy2pico.png" alt="copy into pico" /></p>
+
+<h4 id="3-open-thonny-connect-to-raspberry-pi-pico">3. open Thonny connect to raspberry pi pico</h4>
+
+<p><img src="/assets/images/2023-12-20/openthonny.png" alt="open thonny" /></p>
+
+<h4 id="4-explain-the-codepy">4. explain the code.py</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+
+<span class="kn">from</span> <span class="nn">scheduler</span> <span class="kn">import</span> <span class="n">Scheluder</span><span class="p">,</span> <span class="n">Condition</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">Message</span> <span class="c1"># import basic components
+</span><span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">ticks_ms</span><span class="p">,</span> <span class="n">ticks_add</span><span class="p">,</span> <span class="n">ticks_diff</span><span class="p">,</span> <span class="n">sleep_ms</span> <span class="c1"># import basic methods
+</span>
+
+<span class="c1"># define monitor task function
+# task &amp; name parameters are required by task function signature
+# other parameters can be customized
+# monitor task send cpu &amp; memory load message to display task every 2 seconds
+</span><span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">display_id</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>
+        <span class="n">monitor_msg</span> <span class="o">=</span> <span class="s">"CPU:%3d%%  RAM:%3d%%"</span> <span class="o">%</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="n">scheduler</span><span class="p">.</span><span class="n">idle</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="mi">100</span> <span class="o">-</span> <span class="p">(</span><span class="n">scheduler</span><span class="p">.</span><span class="n">mem_free</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="mi">264</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">))))</span>
+        <span class="k">yield</span> <span class="n">Condition</span><span class="p">(</span><span class="n">sleep</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span> <span class="n">send_msgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Message</span><span class="p">({</span><span class="s">"msg"</span><span class="p">:</span> <span class="n">monitor_msg</span><span class="p">},</span> <span class="n">receiver</span> <span class="o">=</span> <span class="n">display_id</span><span class="p">)])</span> <span class="c1"># sleep 2000 ms, and, send message to display task
+</span>
+
+<span class="c1"># define display task function
+# display task wait for message to print
+</span><span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">Condition</span><span class="p">(</span><span class="n">sleep</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">wait_msg</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span> <span class="c1"># suspend and wait for message to recover
+</span>        <span class="n">msg</span> <span class="o">=</span> <span class="n">task</span><span class="p">.</span><span class="n">get_message</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">content</span><span class="p">[</span><span class="s">"msg"</span><span class="p">])</span>
+
+
+<span class="c1"># define counter task function
+# counter task send message to display task and sleep interval ms every 100 times
+# otherwise, it will sleep interval ms
+</span><span class="k">def</span> <span class="nf">counter</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">interval</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">display_id</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Condition</span><span class="p">(</span><span class="n">sleep</span> <span class="o">=</span> <span class="n">interval</span><span class="p">,</span> <span class="n">send_msgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Message</span><span class="p">({</span><span class="s">"msg"</span><span class="p">:</span> <span class="s">"counter: %06d"</span> <span class="o">%</span> <span class="n">n</span><span class="p">},</span> <span class="n">receiver</span> <span class="o">=</span> <span class="n">display_id</span><span class="p">)])</span> <span class="c1"># sleep interval ms, and, send message to display task
+</span>        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">Condition</span><span class="p">(</span><span class="n">sleep</span> <span class="o">=</span> <span class="n">interval</span><span class="p">)</span> <span class="c1"># sleep interval ms
+</span>        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Scheluder</span><span class="p">()</span> <span class="c1"># initiate a scheduler instance
+</span>        <span class="n">display_id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Task</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="s">"display"</span><span class="p">))</span> <span class="c1"># scheduler add display task
+</span>        <span class="n">monitor_id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Task</span><span class="p">(</span><span class="n">monitor</span><span class="p">,</span> <span class="s">"monitor"</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s">"scheduler"</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s">"display_id"</span><span class="p">:</span> <span class="n">display_id</span><span class="p">}))</span> <span class="c1"># scheduler add monitor task
+</span>        <span class="n">counter_id</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Task</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span> <span class="s">"counter"</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s">"interval"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s">"display_id"</span><span class="p">:</span> <span class="n">display_id</span><span class="p">}))</span> <span class="c1"># scheduler add counter task
+</span>        <span class="n">s</span><span class="p">.</span><span class="n">run</span><span class="p">()</span> <span class="c1"># run scheduler
+</span>    <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"main: %s"</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+</code></pre></div></div>
+
+<h4 id="5-performance">5. performance</h4>
+
+<p><img src="/assets/images/2023-12-20/performance.png" alt="performance" /></p>
+
+<p>Run the 10 ms interval counter task, with monitor and display tasks, it will take <strong>59% cpu</strong> workload and <strong>30% ram</strong> workload, at default cpu frequency <strong>133mhz</strong></p>
+
+<p><img src="/assets/images/2023-12-20/performance2.png" alt="performance 200mhz" /></p>
+
+<p>Run the 10 ms interval counter task, with monitor and display tasks, it will take <strong>15% cpu</strong> workload and <strong>30% ram</strong> workload, at default cpu frequency <strong>200mhz</strong></p>
+
+<h4 id="6-how-to-overclock-raspberry-pi-pico-with-python">6. how to overclock raspberry pi pico with python</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">machine</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">microcontroller</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">machine</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">microcontroller</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"no machine &amp; microcontroller module support"</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">machine</span><span class="p">:</span>
+    <span class="n">machine</span><span class="p">.</span><span class="n">freq</span><span class="p">(</span><span class="mi">200000000</span><span class="p">)</span> <span class="c1"># for micropython use machine to set frequency
+</span>    <span class="k">print</span><span class="p">(</span><span class="s">"freq: %s mhz"</span> <span class="o">%</span> <span class="p">(</span><span class="n">machine</span><span class="p">.</span><span class="n">freq</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1000000</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">microcontroller</span><span class="p">:</span>
+    <span class="n">microcontroller</span><span class="p">.</span><span class="n">cpu</span><span class="p">.</span><span class="n">frequency</span> <span class="o">=</span> <span class="mi">200000000</span> <span class="c1"># for circuitpython use microcontroller to set frequency
+</span>    <span class="k">print</span><span class="p">(</span><span class="s">"freq: %s mhz"</span> <span class="o">%</span> <span class="p">(</span><span class="n">microcontroller</span><span class="p">.</span><span class="n">cpu</span><span class="p">.</span><span class="n">frequency</span> <span class="o">/</span> <span class="mi">1000000</span><span class="p">))</span>
+</code></pre></div></div>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
